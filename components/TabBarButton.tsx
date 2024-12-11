@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, GestureResponderEvent } from "react-native";
 import React, { useEffect } from "react";
 import { icon } from "@/constants/Icons";
 import Animated, {
@@ -8,6 +8,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { Colors } from "@/constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 
 const TabBarButton = ({
   onPress,
@@ -16,19 +17,16 @@ const TabBarButton = ({
   routeName,
   label,
 }: {
-  onPress: Function;
-  onLongPress: Function;
+  onPress: (event: GestureResponderEvent) => void;
+  onLongPress: (event: GestureResponderEvent) => void;
   isFocused: boolean;
-  routeName: string;
+  routeName: keyof typeof icon;
   label: string;
 }) => {
   const opacity = useSharedValue(0);
 
   useEffect(() => {
-    opacity.value = withSpring(
-      typeof isFocused === "boolean" ? (isFocused ? 1 : 0) : isFocused,
-      { duration: 50 }
-    );
+    opacity.value = withSpring(isFocused ? 1 : 0, { duration: 50 });
   }, [opacity, isFocused]);
 
   const animatedTextStyle = useAnimatedStyle(() => {
@@ -39,13 +37,15 @@ const TabBarButton = ({
     };
   });
 
+  const IconComponent = icon[routeName] || (() => <Ionicons size={24} />);
+
   return (
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
       style={styles.tabbarBtn}
     >
-      {icon[routeName]({
+      {IconComponent({
         color: isFocused ? Colors.tabIconSelected : Colors.tabIconDefault,
         focused: isFocused,
       })}
